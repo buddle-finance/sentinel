@@ -11,3 +11,4 @@ secrets
 build/
 .DS_Store
 .env
+.pyenv
