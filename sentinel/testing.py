@@ -20,7 +20,7 @@ w3 = Web3(
     Web3.HTTPProvider("https://rinkeby.arbitrum.io/rpc")
 )
 
-w3_l1 = Web3(Web3.HTTPProvider("https://rpc.ankr.com/eth_rinkeby	"))
+w3_l1 = Web3(Web3.HTTPProvider("https://rpc.ankr.com/eth_rinkeby"))
 
 # w3 = Web3(EthereumTesterProvider())
 print(w3.isConnected())
