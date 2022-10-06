@@ -1,7 +1,9 @@
 import os
-from dotenv import load_dotenv
+import json
+from sentinel.services.logManager import BuddleLogger
 from sentinel.services.singletonFactory import SingletonFactory
 from sentinel.types.enums import BuddleContract
+import logging
 
 
 class ConfigManager:
@@ -10,8 +12,10 @@ class ConfigManager:
     """
 
     def __init__(self, singletonFactory: SingletonFactory) -> None:
-        dotenv_path = os.path.join(os.path.dirname(__file__), "./../../.env")
-        load_dotenv(dotenv_path)
+        configPath = os.path.join(os.path.dirname(__file__), "./../../env.json")
+        configDict = {}
+        self.logger = singletonFactory.getService(BuddleLogger)
+        self.logger.debug("ConfigManager initialized")
 
     def getPrivateKey(self, chainId: int) -> str:
         key = os.environ.get(f"PRIVATE_KEY_{chainId}")

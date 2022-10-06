@@ -6,6 +6,7 @@ class SingletonFactory:
         self.classes: dict[type, object] = {}
 
     def addService(self, cls: object) -> None:
+        print("Adding", type(cls), "to services")
         self.classes[type(cls)] = cls
 
     def removeService(self, clsType: type) -> bool:
@@ -18,6 +19,7 @@ class SingletonFactory:
     def getService(self, clsType: type) -> object:
         cls = self.classes.get(clsType)
         if not cls:
+            print("Service", clsType.__name__, "not found, initializing...")
             cls = clsType(self)
             self.addService(cls)
 

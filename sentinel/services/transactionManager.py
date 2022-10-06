@@ -1,7 +1,8 @@
-from sentinel.services.web3Manager import Web3Manager
-from threadManager import ThreadManager
 from eth_account.datastructures import SignedTransaction
 from sentinel.services.singletonFactory import SingletonFactory
+from sentinel.services.web3Manager import Web3Manager
+
+from threadManager import ThreadManager
 
 
 class TransactionManager(ThreadManager):

@@ -1,6 +1,6 @@
-from web3 import Web3
-from sentinel.services.singletonFactory import SingletonFactory
 from sentinel.services.configManager import ConfigManager
+from sentinel.services.singletonFactory import SingletonFactory
+from web3 import Web3
 
 
 class Web3Manager:
