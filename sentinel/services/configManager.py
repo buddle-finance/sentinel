@@ -1,9 +1,11 @@
-import os
 import json
+import os
+
 from sentinel.services.logManager import BuddleLogger
 from sentinel.services.singletonFactory import SingletonFactory
+from sentinel.types.configTypes import BuddleConfig
 from sentinel.types.enums import BuddleContract
-import logging
+from sentinel.types.exceptions import RequiredConfigMissingException
 
 
 class ConfigManager:
@@ -12,10 +14,24 @@ class ConfigManager:
     """
 
     def __init__(self, singletonFactory: SingletonFactory) -> None:
-        configPath = os.path.join(os.path.dirname(__file__), "./../../env.json")
-        configDict = {}
         self.logger = singletonFactory.getService(BuddleLogger)
+        self.config: BuddleConfig = None
+        self.configDict = {}
+        if not self.readConfigFile():
+            raise RequiredConfigMissingException("Error reading config file")
         self.logger.debug("ConfigManager initialized")
+
+    def readConfigFile(self) -> bool:
+        configPath = os.path.join(os.path.dirname(__file__), "./../../env.json")
+        try:
+            with open(configPath) as configFile:
+                self.configDict = json.load(configFile)
+                self.config = BuddleConfig(self.configDict)
+        except Exception:
+            self.logger.exception("Error reading config file")
+            return False
+
+        return True
 
     def getPrivateKey(self, chainId: int) -> str:
         key = os.environ.get(f"PRIVATE_KEY_{chainId}")
@@ -36,5 +52,6 @@ class ConfigManager:
 
         return value
 
-    def getEnv(self, key: str) -> any:
-        return os.environ.get(key)
+    def getEnv(self, key: str) -> str:
+        print("Type:  ", type(os.environ.get(key)))
+        return self.configDict[key]

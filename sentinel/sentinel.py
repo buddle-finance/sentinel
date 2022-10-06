@@ -1,8 +1,8 @@
-from sentinel.services.singletonFactory import SingletonFactory
+import logging
+
 from sentinel.services.configManager import ConfigManager
 from sentinel.services.logManager import BuddleLogger
-
-import logging
+from sentinel.services.singletonFactory import SingletonFactory
 
 
 class Sentinel:
@@ -20,7 +20,10 @@ class Sentinel:
 # Start Sentinel
 def main():
     sentinel = Sentinel()
-    sentinel.start()
+    try:
+        sentinel.start()
+    except Exception:
+        print("Sentinel exited abnormally")
 
 
 main()

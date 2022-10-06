@@ -1,4 +1,7 @@
 from sentinel.types.exceptions import SingletonFactoryException
+from typing import TypeVar, Callable
+
+R, D = TypeVar("R"), TypeVar("D")
 
 
 class SingletonFactory:
@@ -6,7 +9,6 @@ class SingletonFactory:
         self.classes: dict[type, object] = {}
 
     def addService(self, cls: object) -> None:
-        print("Adding", type(cls), "to services")
         self.classes[type(cls)] = cls
 
     def removeService(self, clsType: type) -> bool:
@@ -16,10 +18,9 @@ class SingletonFactory:
 
         return False
 
-    def getService(self, clsType: type) -> object:
+    def getService(self, clsType: Callable[[D], R]) -> R:
         cls = self.classes.get(clsType)
         if not cls:
-            print("Service", clsType.__name__, "not found, initializing...")
             cls = clsType(self)
             self.addService(cls)
 
