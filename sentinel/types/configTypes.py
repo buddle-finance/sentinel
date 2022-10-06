@@ -1,6 +1,6 @@
 class BuddleConfig:
     def __init__(self, config: dict):
-        self.defaults = Defaults(config.get("defaults"))
+        self.defaults = Defaults(config.get("networkDefaults"))
         self.networks: list[Network] = [
             Network(network, self.defaults) for network in config.get("networks")
         ]
