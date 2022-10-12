@@ -15,7 +15,7 @@ class ConfigManager:
 
     def __init__(self, singletonFactory: SingletonFactory) -> None:
         self.logger = singletonFactory.getService(BuddleLogger)
-        self.config: BuddleConfig = None
+        self._config: BuddleConfig = None
         self.configDict = {}
         if not self.readConfigFile():
             raise RequiredConfigMissingException("Error reading config file")
@@ -26,12 +26,16 @@ class ConfigManager:
         try:
             with open(configPath) as configFile:
                 self.configDict = json.load(configFile)
-                self.config = BuddleConfig(self.configDict)
+                self._config = BuddleConfig(self.configDict)
         except Exception:
             self.logger.exception("Error reading config file")
             return False
 
         return True
+
+    @property
+    def config(self) -> BuddleConfig:
+        return self._config
 
     def getPrivateKey(self, chainId: int) -> str:
         key = os.environ.get(f"PRIVATE_KEY_{chainId}")
@@ -39,18 +43,6 @@ class ConfigManager:
             key = os.environ.get(f"PRIVATE_KEY_DEFAULT")
 
         return key
-
-    def getRpcUrl(self, chainId: int) -> str:
-        return os.environ.get(f"RPC_URL_{chainId}")
-
-    def getContractAddress(self, buddleContract: BuddleContract, chainId: int) -> str:
-        value = os.environ.get(f"CONTRACT_ADDRESS_{buddleContract.name}_{chainId}")
-
-        # Bridge contract for each chain MUST have a valid address in config as it is unique
-        if not value and buddleContract != BuddleContract.BUDDLE_BRIDGE:
-            value = os.environ.get(f"CONTRACT_ADDRESS_{buddleContract.name}_DEFAULT")
-
-        return value
 
     def getEnv(self, key: str) -> str:
         print("Type:  ", type(os.environ.get(key)))

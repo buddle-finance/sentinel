@@ -13,3 +13,4 @@ build/
 .env
 .pyenv
 logs/
+env.json

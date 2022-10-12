@@ -1,13 +1,16 @@
-from web3 import Web3
 import json
-from web3.types import BlockData
-from web3.contract import Contract
+
+from eth_account.account import LocalAccount
 from eth_account.datastructures import SignedTransaction
-from sentinel.services.singletonFactory import SingletonFactory
 from sentinel.services.configManager import ConfigManager
+from sentinel.services.singletonFactory import SingletonFactory
 from sentinel.services.transactionManager import TransactionManager
+from sentinel.types.configTypes import Network
 from sentinel.types.enums import BuddleContract
 from sentinel.types.transferData import TransferData
+from web3 import Web3
+from web3.contract import Contract
+from web3.types import BlockData
 
 
 class BuddleNetwork:
@@ -16,15 +19,16 @@ class BuddleNetwork:
         self.connected = False
         self.w3 = None
         self.contracts: dict[str, Contract] = {}
-        self._account = None
+        self._account: LocalAccount = None
         self.configService: ConfigManager = singletonFactory.getService(ConfigManager)
         self.transactionService: TransactionManager = singletonFactory.getService(
             TransactionManager
         )
+        self.network: Network = self.configService.config.getNetwork(self.chainId)
 
     def connect(self) -> bool:
         if not self.w3.isConnected():
-            self.rpcUrl = self.configService.getRpcUrl(self.chainId)
+            self.rpcUrl = self.network.rpc
             self.w3 = Web3(Web3.HTTPProvider(self.rpcUrl))
             self.connected = True
 
@@ -43,9 +47,7 @@ class BuddleNetwork:
         contract = self.contracts.get(buddleContract.name)
         if not contract:
             contract = self.w3.eth.contract(
-                address=self.configService.getContractAddress(
-                    buddleContract, self.chainId
-                ),
+                address=self.network.getContractAddress(buddleContract),
                 abi=self.readAbi(buddleContract),
             )
             self.contracts[buddleContract.name] = contract
@@ -53,13 +55,14 @@ class BuddleNetwork:
         return contract
 
     @property
-    def account(self):
+    def account(self) -> LocalAccount:
         if not self._account:
-            privateKey = self.configService.getPrivateKey(self.chainId)
-            self.account = self.w3.eth.account.privateKeyToAccount(privateKey)
+            privateKey = self.network.privateKey
+            self._account = self.w3.eth.account.privateKeyToAccount(privateKey)
 
-        return self.account
+        return self._account
 
+    # TODO: Relocate
     def depositOnDestination(
         self, transferData: TransferData, transferId: int, chainId: int
     ) -> SignedTransaction:

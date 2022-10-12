@@ -1,9 +1,4 @@
-class BuddleConfig:
-    def __init__(self, config: dict):
-        self.defaults = Defaults(config.get("networkDefaults"))
-        self.networks: list[Network] = [
-            Network(network, self.defaults) for network in config.get("networks")
-        ]
+from sentinel.types.enums import BuddleContract
 
 
 class Defaults:
@@ -26,3 +21,29 @@ class Network:
         self.destContract: str = network.get("destContract")
         self.bridgeContract: str = network.get("bridgeContract")
         self.processes: list[str] = network.get("processes", defaults.processes)
+
+    def getContractAddress(self, buddleContract: BuddleContract):
+        if buddleContract == BuddleContract.SOURCE:
+            return self.srcContract
+        elif buddleContract == BuddleContract.DESTINATION:
+            return self.destContract
+        elif buddleContract == BuddleContract.BRIDGE:
+            return self.bridgeContract
+
+        return None
+
+
+class BuddleConfig:
+    def __init__(self, config: dict):
+        self.defaults = Defaults(config.get("networkDefaults"))
+        self.networks: list[Network] = [
+            Network(network, self.defaults) for network in config.get("networks")
+        ]
+        self.networksDict: dict[int, Network] = {
+            network.chainId: network for network in self.networks
+        }
+        self.logLevel: str = config.get("logLevel", "info")
+        self.maxThreads: int = config.get("maxThreads", 10)
+
+    def getNetwork(self, chainId: int) -> Network:
+        return self.networksDict.get(chainId)

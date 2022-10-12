@@ -1,5 +1,3 @@
-import logging
-
 from sentinel.services.configManager import ConfigManager
 from sentinel.services.logManager import BuddleLogger
 from sentinel.services.singletonFactory import SingletonFactory
